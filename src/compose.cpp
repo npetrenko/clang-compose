@@ -237,7 +237,7 @@ int main(int argc, const char** argv) {
         std::unique_ptr factory =
             std::make_unique<ProjectFrontendActionFactory<IncludesFinderAction>>(project_location);
         if (int ret_code = tool.run(factory.get())) {
-            // return ret_code;
+            return ret_code;
         }
     }
     {

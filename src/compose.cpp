@@ -100,7 +100,7 @@ public:
         clang::Preprocessor& pp = ci.getPreprocessor();
         auto* find_includes_callback = static_cast<IncludesFinder*>(pp.getPPCallbacks());
 
-        llvm::raw_fd_ostream stream(0, false);
+        llvm::raw_fd_ostream stream(1, false);
         for (auto& inc : find_includes_callback->found_includes) {
             stream << "#include ";
             stream << (inc.is_angled ? "<" : "\"");
@@ -171,7 +171,7 @@ void FindNamedClassConsumer::HandleTranslationUnit(clang::ASTContext& context) {
 void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
                                             clang::ASTContext* context, clang::Rewriter* rewriter) {
     clang::SourceManager& sm = compiler_->getSourceManager();
-    llvm::raw_fd_ostream output_stream(0, false);
+    llvm::raw_fd_ostream output_stream(1, false);
 
     for (const auto* subdecl : tu_decl->decls()) {
         const auto& loc = subdecl->getLocation();

@@ -12,9 +12,8 @@
 
 #include <vector>
 #include <iostream>
-#include <unordered_set>
+#include <set>
 
-#include <clang/Rewrite/Core/Rewriter.h>
 #include <compose/exceptions.hpp>
 
 namespace ct = clang::tooling;
@@ -39,9 +38,9 @@ public:
         bool is_angled;
         clang::StringRef content;
 
-	bool operator<(const Include& other) const {
-	    return content < other.content;
-	}
+        bool operator<(const Include& other) const {
+            return content < other.content;
+        }
     };
 
     IncludesFinder(clang::CompilerInstance* compiler) : compiler_(compiler) {
@@ -139,8 +138,7 @@ public:
     virtual ~FindNamedClassConsumer() = default;
 
 private:
-    void TraverseTUDecl(clang::TranslationUnitDecl* decl, clang::ASTContext* context,
-                        clang::Rewriter* rewriter);
+    void TraverseTUDecl(clang::TranslationUnitDecl* decl, clang::ASTContext* context);
     clang::CompilerInstance* compiler_;
     llvm::StringRef infile_;
     ProjectLocation proj_loc_;
@@ -154,22 +152,11 @@ std::unique_ptr<clang::ASTConsumer> FindNamedClassAction::CreateASTConsumer(
 }
 
 void FindNamedClassConsumer::HandleTranslationUnit(clang::ASTContext& context) {
-    clang::Rewriter rewriter;
-    rewriter.setSourceMgr(compiler_->getSourceManager(), compiler_->getLangOpts());
-
-    TraverseTUDecl(context.getTranslationUnitDecl(), &context, &rewriter);
-
-    rewriter.InsertText(context.getTranslationUnitDecl()->getEndLoc(), "Hello, world!");
-
-    const clang::RewriteBuffer* buf =
-        rewriter.getRewriteBufferFor(compiler_->getSourceManager().getMainFileID());
-    if (buf) {
-        std::cout << std::string(buf->begin(), buf->end()) << "\n";
-    }
+    TraverseTUDecl(context.getTranslationUnitDecl(), &context);
 }
 
 void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
-                                            clang::ASTContext* context, clang::Rewriter* rewriter) {
+                                            clang::ASTContext* context) {
     clang::SourceManager& sm = compiler_->getSourceManager();
     llvm::raw_fd_ostream output_stream(1, false);
 

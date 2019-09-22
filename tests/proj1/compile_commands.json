@@ -1,7 +1,1 @@
-[
-{
-  "directory": "/home/nikita/tmp/test_proj/build",
-  "command": "/usr/bin/clang++   -I/home/nikita/tmp/test_proj/include    -std=c++17 -o CMakeFiles/main.dir/src/main.cpp.o -c /home/nikita/tmp/test_proj/src/main.cpp",
-  "file": "/home/nikita/tmp/test_proj/src/main.cpp"
-}
-]
+build/compile_commands.json

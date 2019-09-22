@@ -10,6 +10,8 @@
 
 #include <llvm/Support/raw_ostream.h>
 
+#include <clang/Rewrite/Core/Rewriter.h>
+
 #include <vector>
 #include <iostream>
 #include <set>
@@ -138,7 +140,8 @@ public:
     virtual ~FindNamedClassConsumer() = default;
 
 private:
-    void TraverseTUDecl(clang::TranslationUnitDecl* decl, clang::ASTContext* context);
+    void TraverseTUDecl(clang::TranslationUnitDecl* decl, clang::ASTContext* context,
+                        clang::Rewriter* rewriter);
     clang::CompilerInstance* compiler_;
     llvm::StringRef infile_;
     ProjectLocation proj_loc_;
@@ -152,13 +155,19 @@ std::unique_ptr<clang::ASTConsumer> FindNamedClassAction::CreateASTConsumer(
 }
 
 void FindNamedClassConsumer::HandleTranslationUnit(clang::ASTContext& context) {
-    TraverseTUDecl(context.getTranslationUnitDecl(), &context);
+    // dummy rewriter
+    clang::Rewriter rewriter;
+
+    rewriter.setSourceMgr(compiler_->getSourceManager(), compiler_->getLangOpts());
+
+    TraverseTUDecl(context.getTranslationUnitDecl(), &context, &rewriter);
 }
 
 void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
-                                            clang::ASTContext* context) {
+                                            clang::ASTContext* context, clang::Rewriter* rewriter) {
     clang::SourceManager& sm = compiler_->getSourceManager();
     llvm::raw_fd_ostream output_stream(1, false);
+    llvm::raw_fd_ostream error_stream(2, false);
 
     for (const auto* subdecl : tu_decl->decls()) {
         const auto& loc = subdecl->getLocation();
@@ -170,13 +179,25 @@ void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
         if (auto declkind = subdecl->getKind(); declkind == clang::Decl::CXXRecord) {
             const auto* cxxrec = static_cast<const clang::CXXRecordDecl*>(subdecl);
             if (cxxrec->getName().empty()) {
-                loc.print(output_stream, sm);
-                output_stream << "\n";
+                error_stream << "\n";
+                loc.print(error_stream, sm);
+                error_stream << "\n";
                 throw AnonymousCXXRecordDecl();
             }
         }
 
-        subdecl->print(output_stream);
+        if (subdecl->isImplicit()) {
+            continue;
+        }
+
+        // subdecl->print(output_stream);
+        /*
+        output_stream << subdecl->getDeclKindName() << " " << "\n";
+        subdecl->getSourceRange().print(output_stream, context->getSourceManager());
+        output_stream << "\n";
+        */
+        output_stream << rewriter->getRewrittenText(subdecl->getSourceRange());
+
         if (clang::Lexer::findLocationAfterToken(subdecl->getEndLoc(), clang::tok::semi, sm,
                                                  compiler_->getLangOpts(), true)
                 .isValid()) {
@@ -185,9 +206,10 @@ void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
         } else {
             if (auto declkind = subdecl->getKind();
                 declkind == clang::Decl::CXXRecord || declkind == clang::Decl::ClassTemplate) {
-                output_stream << "\n";
-                loc.print(output_stream, sm);
-                output_stream << "\n";
+                llvm::raw_fd_ostream output_stream(2, false);
+                error_stream << "\n";
+                loc.print(error_stream, sm);
+                error_stream << "\n";
                 throw CXXRecPlusVar();
             }
         }

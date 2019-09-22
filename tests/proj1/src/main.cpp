@@ -1,5 +1,6 @@
 #include <test_proj/incl.hpp>
 #include <test_proj/incl_second.hpp>
+#include <test_proj/range.hpp>
 
 class Class {
 public:

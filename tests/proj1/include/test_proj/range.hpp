@@ -1,22 +1,7 @@
+#pragma once
+
 #include <iterator>
 #include <type_traits>
-#include <vector>
-
-class FromInclude {
-};
-
-int second_include();
-
-struct Hey {
-    struct ImInHey {
-    };
-};
-
-template <class>
-void TemplateDecl();
-
-struct ThisIsPacked {
-};
 
 namespace detail {
 
@@ -69,7 +54,7 @@ using OverloadedBase =
                                       std::random_access_iterator_tag>,
                        RandomIRange<Iter>, IRangeImplBase<Iter>>;
 
-}
+}  // namespace detail
 
 template <class Iter>
 class IRange : public detail::OverloadedBase<Iter> {
@@ -81,36 +66,3 @@ public:
 
 template <class Container>
 IRange(Container&& cont)->IRange<decltype(cont.begin())>;
-
-class Class {
-public:
-    int Method() {
-        return 0;
-    }
-
-private:
-    int so_private_;
-};
-
-class OutOfLine {
-public:
-    int OtherMethod();
-};
-
-int OutOfLine::OtherMethod() {
-    return -1;
-}
-
-class NoInlineclass {
-};
-
-int main() {
-    int x = 1 + 1;
-    int a;
-    a = x + 2;
-    if (a < 2) {
-        a = 51;
-    }
-    return x - 2;
-}
-

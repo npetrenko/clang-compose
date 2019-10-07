@@ -29,7 +29,7 @@ class {
 ```
 The tool throws unhandled exception on discovery of such things
 
-Also, any macro that is not `#include ...` is ignored (e.g., `#pragma pack...`, `#define INEEDMYOWNPI 3.14`), but it is out of the intended use scope
+Also, any macro definition that is not `#include ...` is ignored (e.g., `#pragma pack...`, `#define INEEDMYOWNPI 3.14`), but it is out of the intended use scope
 
 ## ToDo
 * Maybe provide better project discovery (for now, the included file is merged iff it is in `/home` directory)

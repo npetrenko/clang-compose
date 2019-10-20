@@ -8,11 +8,16 @@ bool ExpandDeclRange::VisitDecl(clang::Decl* decl) {
 }
 
 void ExpandDeclRange::MaybeExpand(clang::SourceRange range) {
-    if (!begin_ || !(*begin_ < range.getBegin())) {
+    assert(range.isValid());
+    auto is_before = [&](auto&& first, auto&& second) {
+        return clang::FullSourceLoc(first, *sm_ptr_).isBeforeInTranslationUnitThan(second);
+    };
+
+    if (!begin_ || !(is_before(*begin_, range.getBegin()))) {
         begin_ = range.getBegin();
     }
 
-    if (!end_ || *end_ < range.getEnd()) {
+    if (!end_ || is_before(*end_, range.getEnd())) {
         end_ = range.getEnd();
     }
 }

@@ -20,6 +20,8 @@
 #include <compose/exceptions.hpp>
 #include <compose/expand_decl_visitor.hpp>
 
+#include <cassert>
+
 namespace ct = clang::tooling;
 
 static llvm::cl::OptionCategory my_tool_category("Style-checker options");
@@ -200,8 +202,13 @@ void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
         */
         {
             ExpandDeclRange visitor(&sm, &compiler_->getLangOpts());
+
+	    visitor.VisitDecl(subdecl);
             visitor.TraverseDecl(subdecl);
+
+            assert(visitor.GetExpandedSourceRange().isValid());
             output_stream << rewriter->getRewrittenText(visitor.GetExpandedSourceRange());
+	    // output_stream << rewriter->getRewrittenText(subdecl->getSourceRange());
         }
 
         if (clang::Lexer::findLocationAfterToken(subdecl->getEndLoc(), clang::tok::semi, sm,

@@ -18,7 +18,7 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 message(STATUS "LLVM include dir is ${LLVM_INCLUDE_DIR}")
 
-set(SRC "src/compose.cpp")
+set(SRC src/compose.cpp src/expand_decl_visitor.cpp)
 include_directories("include")
 
 add_executable(compose ${SRC})

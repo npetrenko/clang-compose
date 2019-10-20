@@ -11,12 +11,14 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <clang/Rewrite/Core/Rewriter.h>
+#include <clang/AST/RecursiveASTVisitor.h>
 
 #include <vector>
 #include <iostream>
 #include <set>
 
 #include <compose/exceptions.hpp>
+#include <compose/expand_decl_visitor.hpp>
 
 namespace ct = clang::tooling;
 
@@ -169,7 +171,7 @@ void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
     llvm::raw_fd_ostream output_stream(1, false);
     llvm::raw_fd_ostream error_stream(2, false);
 
-    for (const auto* subdecl : tu_decl->decls()) {
+    for (auto* subdecl : tu_decl->decls()) {
         const auto& loc = subdecl->getLocation();
         auto fname = context->getSourceManager().getFilename(loc);
         if (!proj_loc_.IsInProject(fname)) {
@@ -196,7 +198,11 @@ void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
         subdecl->getSourceRange().print(output_stream, context->getSourceManager());
         output_stream << "\n";
         */
-        output_stream << rewriter->getRewrittenText(subdecl->getSourceRange());
+        {
+            ExpandDeclRange visitor(&sm, &compiler_->getLangOpts());
+            visitor.TraverseDecl(subdecl);
+            output_stream << rewriter->getRewrittenText(visitor.GetExpandedSourceRange());
+        }
 
         if (clang::Lexer::findLocationAfterToken(subdecl->getEndLoc(), clang::tok::semi, sm,
                                                  compiler_->getLangOpts(), true)

@@ -1,1 +1,7 @@
-build/compile_commands.json
+[
+{
+  "directory": "/home/nikita/projects/clang-compose/tests/proj1/build",
+  "command": "/usr/bin/clang++   -I/home/nikita/projects/clang-compose/tests/proj1/include    -std=c++17 -o CMakeFiles/main.dir/src/main.cpp.o -c /home/nikita/projects/clang-compose/tests/proj1/src/main.cpp",
+  "file": "/home/nikita/projects/clang-compose/tests/proj1/src/main.cpp"
+}
+]

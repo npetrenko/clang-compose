@@ -27,7 +27,7 @@ bool ExpandDeclRange::VisitType(clang::Type* type) {
         // decltypes are kinda special in handling
         clang::DecltypeType* declt = static_cast<clang::DecltypeType*>(type);
         auto sr = declt->getUnderlyingExpr()->getSourceRange();
-        while (true) {
+        for (int shift = 0; shift < 2048; ++shift) {
             auto token = clang::Lexer::findNextToken(sr.getEnd(), *sm_ptr_, *lang_opts_ptr_);
             if (token.getValue().getKind() == clang::tok::TokenKind::semi) {
                 break;

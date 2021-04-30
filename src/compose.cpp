@@ -201,14 +201,14 @@ void FindNamedClassConsumer::TraverseTUDecl(clang::TranslationUnitDecl* tu_decl,
         output_stream << "\n";
         */
         {
-            ExpandDeclRange visitor(&sm, &compiler_->getLangOpts());
+            // ExpandDeclRange visitor(&sm, &compiler_->getLangOpts());
 
-	    visitor.VisitDecl(subdecl);
-            visitor.TraverseDecl(subdecl);
+            // visitor.VisitDecl(subdecl);
+            // visitor.TraverseDecl(subdecl);
 
-            assert(visitor.GetExpandedSourceRange().isValid());
-            output_stream << rewriter->getRewrittenText(visitor.GetExpandedSourceRange());
-	    // output_stream << rewriter->getRewrittenText(subdecl->getSourceRange());
+            // assert(visitor.GetExpandedSourceRange().isValid());
+            // output_stream << rewriter->getRewrittenText(visitor.GetExpandedSourceRange());
+            output_stream << rewriter->getRewrittenText(subdecl->getSourceRange());
         }
 
         if (clang::Lexer::findLocationAfterToken(subdecl->getEndLoc(), clang::tok::semi, sm,
